@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can You Click 67 Times?</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        #timer {
+            position: absolute;
+            top: 40px;
+            font-size: 3em;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            font-weight: bold;
+        }
+
+        #clickButton {
+            padding: 40px 80px;
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 0 30px #ff00ff, 0 0 50px #00ffff;
+            transition: transform 0.1s;
+        }
+
+        #clickButton:hover {
+            transform: scale(1.05);
+        }
+
+        #clickButton:active {
+            transform: scale(0.95);
+        }
+
+        #counter {
+            margin-top: 30px;
+            font-size: 2em;
+            color: #fff;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            font-weight: bold;
+        }
+
+        .explosion {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            animation: explode 0.8s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(15);
+                opacity: 0;
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Can You Click 67 Times?</h1>
+    <div id="timer">7.0</div>
+    <button id="clickButton">CLICK ME!</button>
+    <div id="counter">Clicks: 0</div>
+    <div id="result"></div>
+
+    <script>
+        let clicks = 0;
+        let timeLeft = 7.0;
+        let timerInterval;
+        let gameStarted = false;
+        let gameOver = false;
+
+        const button = document.getElementById('clickButton');
+        const timerDisplay = document.getElementById('timer');
+        const counterDisplay = document.getElementById('counter');
+        const resultDisplay = document.getElementById('result');
+
+        button.addEventListener('click', function() {
+            if (gameOver) {
+                resetGame();
+                return;
+            }
+
+            if (!gameStarted) {
+                startGame();
+            }
+
+            clicks++;
+            counterDisplay.textContent = 'Clicks: ' + clicks;
+        });
+
+        function startGame() {
+            gameStarted = true;
+            timerInterval = setInterval(function() {
+                timeLeft -= 0.1;
+                if (timeLeft <= 0) {
+                    endGame();
+                } else {
+                    timerDisplay.textContent = timeLeft.toFixed(1);
+                }
+            }, 100);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            gameOver = true;
+            timerDisplay.textContent = '0.0';
+            
+            if (clicks >= 67) {
+                resultDisplay.textContent = '🎉 YOU DID IT! 🎉';
+                button.textContent = 'PLAY AGAIN';
+            } else {
+                resultDisplay.textContent = '💥 BOOM! Screen exploding... 💥';
+                document.body.classList.add('shake');
+                createExplosions();
+                setTimeout(function() {
+                    button.textContent = 'TRY AGAIN';
+                }, 3000);
+            }
+        }
+
+        function createExplosions() {
+            const colors = ['#ff0000', '#ff6600', '#ffff00', '#ff00ff', '#00ffff'];
+            for (let i = 0; i < 20; i++) {
+                setTimeout(function() {
+                    const explosion = document.createElement('div');
+                    explosion.className = 'explosion';
+                    explosion.style.left = Math.random() * window.innerWidth + 'px';
+                    explosion.style.top = Math.random() * window.innerHeight + 'px';
+                    explosion.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    document.body.appendChild(explosion);
+                    
+                    setTimeout(function() {
+                        explosion.remove();
+                    }, 800);
+                }, i * 150);
+            }
+        }
+
+        function resetGame() {
+            clicks = 0;
+            timeLeft = 7.0;
+            gameStarted = false;
+            gameOver = false;
+            counterDisplay.textContent = 'Clicks: 0';
+            timerDisplay.textContent = '7.0';
+            resultDisplay.textContent = '';
+            button.textContent = 'CLICK ME!';
+            document.body.classList.remove('shake');
+        }
+    </script>
+</body>
+</html>
